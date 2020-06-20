@@ -8,6 +8,7 @@ import (
 	"io"
 	"reflect"
 
+	xreflect "go.nanasi880.dev/x/reflect"
 	"go.nanasi880.dev/x/unsafe"
 )
 
@@ -209,7 +210,7 @@ func (e *Encoder) encodeValue(rv reflect.Value) (string, error) {
 		}
 
 		if marshalFunc != nil {
-			if rv.IsNil() {
+			if xreflect.IsNilable(rv) && rv.IsNil() {
 				return e.Nil, nil
 			} else {
 				encoded, err := marshalFunc()
