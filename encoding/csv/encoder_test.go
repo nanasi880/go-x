@@ -15,6 +15,7 @@ func TestEncoder_Encode(t *testing.T) {
 		UseHeader bool
 		Comma     rune
 		UseCRLF   bool
+		Nil       string
 		ToCSV     interface{}
 		Want      string
 	}{
@@ -23,6 +24,7 @@ func TestEncoder_Encode(t *testing.T) {
 			UseHeader: true,
 			Comma:     ',',
 			UseCRLF:   false,
+			Nil:       "null",
 			ToCSV: []*struct {
 				V1 int       `csv:"Col1"`
 				V2 float64   `csv:"Col2"`
@@ -41,6 +43,7 @@ func TestEncoder_Encode(t *testing.T) {
 			UseHeader: false,
 			Comma:     ',',
 			UseCRLF:   false,
+			Nil:       "null",
 			ToCSV: []*struct {
 				V1 int       `csv:"Col1"`
 				V2 float64   `csv:"Col2"`
@@ -54,6 +57,79 @@ func TestEncoder_Encode(t *testing.T) {
 			},
 			Want: "42,1.5,2020-01-01T12:00:00Z\n",
 		},
+		{
+			Name:      "Null",
+			UseHeader: false,
+			Comma:     ',',
+			UseCRLF:   false,
+			Nil:       "null",
+			ToCSV: struct {
+				V1 int  `csv:"Col1"`
+				V2 *int `csv:"Col2"`
+			}{
+				V1: 42,
+				V2: nil,
+			},
+			Want: "42,null\n",
+		},
+		{
+			Name:      "NoUseTag",
+			UseHeader: true,
+			Comma:     ',',
+			UseCRLF:   false,
+			Nil:       "",
+			ToCSV: struct {
+				Col1 int
+				Col2 string
+			}{
+				Col1: 42,
+				Col2: "hello",
+			},
+			Want: "Col1,Col2\n42,hello\n",
+		},
+		{
+			Name:      "AllPrimitiveType",
+			UseHeader: false,
+			Comma:     ',',
+			UseCRLF:   false,
+			Nil:       "",
+			ToCSV: struct {
+				Bool       bool
+				Int8       int8
+				Int16      int16
+				Int32      int32
+				Int64      int64
+				Int        int
+				Uint8      uint8
+				Uint16     uint16
+				Uint32     uint32
+				Uint64     uint64
+				Uint       uint
+				Float32    float32
+				Float64    float64
+				Complex64  complex64
+				Complex128 complex128
+				String     string
+			}{
+				Bool:       true,
+				Int8:       -8,
+				Int16:      -16,
+				Int32:      -32,
+				Int64:      -64,
+				Int:        -128,
+				Uint8:      8,
+				Uint16:     16,
+				Uint32:     32,
+				Uint64:     64,
+				Uint:       128,
+				Float32:    1.5,
+				Float64:    1.5,
+				Complex64:  complex(1, 2),
+				Complex128: complex(3, 4),
+				String:     "hello",
+			},
+			Want: "true,-8,-16,-32,-64,-128,8,16,32,64,128,1.5,1.5,(1+2i),(3+4i),hello\n",
+		},
 	}
 
 	for _, data := range data {
@@ -66,6 +142,7 @@ func TestEncoder_Encode(t *testing.T) {
 			enc.UseHeader = data.UseHeader
 			enc.Comma = data.Comma
 			enc.UseCRLF = data.UseCRLF
+			enc.Nil = data.Nil
 
 			err := enc.Encode(data.ToCSV)
 			if err != nil {
