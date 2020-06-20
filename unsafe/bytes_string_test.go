@@ -25,4 +25,11 @@ func TestStringToBytes(t *testing.T) {
 	if bytes.Compare(want, got) != 0 {
 		t.Fatal(got)
 	}
+
+	if len(got) != 3 {
+		t.Fatal(len(got))
+	}
+	if cap(got) != 3 {
+		t.Fatal(cap(got))
+	}
 }

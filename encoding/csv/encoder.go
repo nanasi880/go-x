@@ -24,6 +24,13 @@ var (
 	}
 )
 
+// Marshaler is the interface implemented by types that
+// can marshal themselves into valid CSV.
+type Marshaler interface {
+	MarshalCSV() ([]byte, error)
+}
+
+// Marshal is encodes a structure or slice of a structure into CSV data.
 func Marshal(v interface{}) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	err := NewEncoder(buf).Encode(v)
@@ -49,10 +56,7 @@ func NewEncoder(w io.Writer) *Encoder {
 	}
 }
 
-type Marshaler interface {
-	MarshalCSV() ([]byte, error)
-}
-
+// An Encoder writes CSV values to an output stream.
 type Encoder struct {
 	Comma          rune
 	UseCRLF        bool
@@ -63,6 +67,7 @@ type Encoder struct {
 	typeCache      reflect.Type
 }
 
+// Encode is encodes a structure or slice of a structure into CSV data and output to the io.Writer specified by NewEncoder.
 func (e *Encoder) Encode(v interface{}) (err error) {
 
 	if v == nil {
