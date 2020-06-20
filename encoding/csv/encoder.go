@@ -222,6 +222,15 @@ func (e *Encoder) encodeValue(rv reflect.Value) (string, error) {
 		}
 	}
 
+	if rv.Kind() == reflect.Ptr {
+		if rv.IsNil() {
+			return e.Nil, nil
+		}
+
+		rv = rv.Elem()
+		v = rv.Interface()
+	}
+
 	for _, kind := range wellKnownEncodingKinds {
 		if rv.Kind() != kind {
 			continue
