@@ -29,11 +29,11 @@ func ExampleMarshal() {
 		panic(err)
 	}
 
+	fmt.Println(string(encoded))
 	// Output:
 	// Name,Age,Comment
 	// Bob,18,my name is Bob
 	// Alice,18,my name is Alice
-	fmt.Println(string(encoded))
 }
 
 func ExampleEncoder_Encode() {
@@ -50,14 +50,14 @@ func ExampleEncoder_Encode() {
 		{Name: "Alice", Age: 18, Memo: "my name is Alice", Ignore: "Hi"},
 	}
 
-	// Output:
-	// Name,Age,Comment
-	// Bob,18,my name is Bob
-	// Alice,18,my name is Alice
 	err := csv.NewEncoder(os.Stdout).Encode(d)
 	if err != nil {
 		panic(err)
 	}
+	// Output:
+	// Name,Age,Comment
+	// Bob,18,my name is Bob
+	// Alice,18,my name is Alice
 }
 
 func TestEncoder_Encode(t *testing.T) {
