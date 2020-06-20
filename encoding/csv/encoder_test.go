@@ -1,12 +1,64 @@
 package csv_test
 
 import (
+	"fmt"
+	"os"
 	"strings"
 	"testing"
 	"time"
 
 	"go.nanasi880.dev/x/encoding/csv"
 )
+
+func ExampleMarshal() {
+
+	type csvData struct {
+		Name   string
+		Age    int
+		Memo   string `csv:"Comment"`
+		Ignore string `csv:"-"`
+	}
+
+	d := []csvData{
+		{Name: "Bob", Age: 18, Memo: "my name is Bob", Ignore: "Hi"},
+		{Name: "Alice", Age: 18, Memo: "my name is Alice", Ignore: "Hi"},
+	}
+
+	encoded, err := csv.Marshal(d)
+	if err != nil {
+		panic(err)
+	}
+
+	// Output:
+	// Name,Age,Comment
+	// Bob,18,my name is Bob
+	// Alice,18,my name is Alice
+	fmt.Println(string(encoded))
+}
+
+func ExampleEncoder_Encode() {
+
+	type csvData struct {
+		Name   string
+		Age    int
+		Memo   string `csv:"Comment"`
+		Ignore string `csv:"-"`
+	}
+
+	d := []csvData{
+		{Name: "Bob", Age: 18, Memo: "my name is Bob", Ignore: "Hi"},
+		{Name: "Alice", Age: 18, Memo: "my name is Alice", Ignore: "Hi"},
+	}
+
+	// Output:
+	// Name,Age,Comment
+	// Bob,18,my name is Bob
+	// Alice,18,my name is Alice
+	err := csv.NewEncoder(os.Stdout).Encode(d)
+	if err != nil {
+		panic(err)
+	}
+}
 
 func TestEncoder_Encode(t *testing.T) {
 
