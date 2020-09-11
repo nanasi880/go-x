@@ -1,3 +1,3 @@
 module go.nanasi880.dev/x
 
-go 1.14
+go 1.15

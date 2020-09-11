@@ -10,7 +10,7 @@ import (
 	"go.nanasi880.dev/x/encoding/csv"
 )
 
-func ExampleMarshal() {
+func ExampleMarshalString() {
 
 	type csvData struct {
 		Name   string
@@ -24,12 +24,12 @@ func ExampleMarshal() {
 		{Name: "Alice", Age: 18, Memo: "my name is Alice", Ignore: "Hi"},
 	}
 
-	encoded, err := csv.Marshal(d)
+	encoded, err := csv.MarshalString(d)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(string(encoded))
+	fmt.Println(encoded)
 	// Output:
 	// Name,Age,Comment
 	// Bob,18,my name is Bob
