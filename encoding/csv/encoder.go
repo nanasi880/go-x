@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"reflect"
+	"strings"
 
 	xreflect "go.nanasi880.dev/x/reflect"
 	"go.nanasi880.dev/x/unsafe"
@@ -28,6 +29,16 @@ var (
 // can marshal themselves into valid CSV.
 type Marshaler interface {
 	MarshalCSV() ([]byte, error)
+}
+
+// MarshalString is encodes a structure of slice of a structure into CSV string.
+func MarshalString(v interface{}) (string, error) {
+	buf := new(strings.Builder)
+	err := NewEncoder(buf).Encode(v)
+	if err != nil {
+		return "", err
+	}
+	return buf.String(), nil
 }
 
 // Marshal is encodes a structure or slice of a structure into CSV data.

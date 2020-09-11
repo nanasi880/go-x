@@ -20,14 +20,14 @@ var (
 		reflect.Int8:  func(v int64) interface{} { return int8(v) },
 		reflect.Int16: func(v int64) interface{} { return int16(v) },
 		reflect.Int32: func(v int64) interface{} { return int32(v) },
-		reflect.Int64: func(v int64) interface{} { return int64(v) },
+		reflect.Int64: func(v int64) interface{} { return v },
 		reflect.Int:   func(v int64) interface{} { return int(v) },
 	}
 	uintCastMap = map[reflect.Kind]func(v uint64) interface{}{
 		reflect.Uint8:  func(v uint64) interface{} { return uint8(v) },
 		reflect.Uint16: func(v uint64) interface{} { return uint16(v) },
 		reflect.Uint32: func(v uint64) interface{} { return uint32(v) },
-		reflect.Uint64: func(v uint64) interface{} { return uint64(v) },
+		reflect.Uint64: func(v uint64) interface{} { return v },
 		reflect.Uint:   func(v uint64) interface{} { return uint(v) },
 	}
 )
@@ -39,6 +39,11 @@ var (
 // if it wishes to retain the data after returning.
 type Unmarshaler interface {
 	UnmarshalCSV([]byte) error
+}
+
+// UnmarshalString is decodes a slice of a structure from CSV string.
+func UnmarshalString(csv string, out interface{}) error {
+	return Unmarshal(unsafe.StringToBytes(csv), out)
 }
 
 // Unmarshal is decodes a slice of a structure from CSV data.
@@ -395,10 +400,10 @@ func (d *Decoder) decodeComplex(raw string, out interface{}) error {
 	}
 
 	if rv.Kind() == reflect.Complex64 {
-		var v complex64 = complex(float32(realF), float32(imagF))
+		var v = complex(float32(realF), float32(imagF))
 		rv.Set(reflect.ValueOf(v))
 	} else {
-		var v complex128 = complex(realF, imagF)
+		var v = complex(realF, imagF)
 		rv.Set(reflect.ValueOf(v))
 	}
 

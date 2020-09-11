@@ -9,6 +9,32 @@ import (
 	"go.nanasi880.dev/x/encoding/csv"
 )
 
+func ExampleUnmarshalString() {
+	const csvString = `Name,Age,Comment
+Bob,18,my name is Bob
+Alice,18,my name is Alice`
+
+	type csvData struct {
+		Name   string
+		Age    int
+		Memo   string `csv:"Comment"`
+		Ignore int    `csv:"-"`
+	}
+
+	var d []csvData
+	if err := csv.UnmarshalString(csvString, &d); err != nil {
+		panic(err)
+	}
+
+	fmt.Println(len(d))
+	fmt.Println(d[0])
+	fmt.Println(d[1])
+	// Output:
+	// 2
+	// {Bob 18 my name is Bob 0}
+	// {Alice 18 my name is Alice 0}
+}
+
 func TestDecoder_Decode(t *testing.T) {
 
 	data := []struct {
