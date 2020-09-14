@@ -5,8 +5,8 @@ import (
 	"os"
 	"os/user"
 	"strconv"
-	"syscall"
-	"time"
+
+	xos "go.nanasi880.dev/x/os"
 )
 
 type fileInfo struct {
@@ -33,26 +33,21 @@ func (f *fileInfo) tarHeader(path string) *tar.Header {
 	header.Size = info.Size()
 	header.Mode = int64(info.Mode())
 
-	header.ModTime = info.ModTime()
+	sysInfo := xos.FileInfo(info)
 
-	if stat, ok := info.Sys().(*syscall.Stat_t); ok {
-		header.Uid = int(stat.Uid)
-		header.Gid = int(stat.Gid)
+	header.Uid = sysInfo.UID()
+	header.Gid = sysInfo.GID()
 
-		u, err := user.LookupId(strconv.Itoa(header.Uid))
-		if err == nil {
-			header.Uname = u.Name
-		}
-
-		g, err := user.LookupGroupId(strconv.Itoa(header.Gid))
-		if err == nil {
-			header.Gname = g.Name
-		}
-
-		header.ModTime = time.Unix(stat.Mtimespec.Unix()).UTC()
-		header.AccessTime = time.Unix(stat.Atimespec.Unix()).UTC()
-		header.ChangeTime = time.Unix(stat.Ctimespec.Unix()).UTC()
+	if u, err := user.LookupId(strconv.Itoa(header.Uid)); err == nil {
+		header.Uname = u.Name
 	}
+	if g, err := user.LookupGroupId(strconv.Itoa(header.Gid)); err == nil {
+		header.Gname = g.Name
+	}
+
+	header.ModTime = sysInfo.LastModifyTime()
+	header.AccessTime = sysInfo.LastAccessTime()
+	header.ChangeTime = sysInfo.LastChangeTime()
 
 	return header
 }

@@ -19,3 +19,15 @@ func TestZeroValue(t *testing.T) {
 		t.Fatal(v)
 	}
 }
+
+func TestZeroValue_Ptr(t *testing.T) {
+	v := 42
+	p := &v
+
+	rv := stdReflect.ValueOf(&p)
+	rv.Elem().Set(reflect.ZeroValue(rv.Elem().Type()))
+
+	if p != nil {
+		t.Fatal()
+	}
+}

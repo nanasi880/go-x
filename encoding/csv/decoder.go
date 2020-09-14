@@ -160,6 +160,9 @@ func (d *Decoder) decodeRows(out reflect.Value, elemType reflect.Type) error {
 func (d *Decoder) decodeValue(raw string, rv reflect.Value) error {
 
 	if rv.Kind() == reflect.Ptr && raw == d.Nil {
+		if !rv.IsNil() {
+			rv.Set(xreflect.ZeroValue(rv.Type()))
+		}
 		return nil
 	}
 

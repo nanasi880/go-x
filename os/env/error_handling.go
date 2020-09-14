@@ -9,4 +9,3 @@ const (
 	ExitOnError                          // Call os.Exit(2).
 	PanicOnError                         // Call panic with a descriptive error.
 )
-

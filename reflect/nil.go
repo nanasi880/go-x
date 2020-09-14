@@ -11,3 +11,11 @@ func IsNilable(v reflect.Value) bool {
 		return false
 	}
 }
+
+// IsNil returns IsNilable(v) && v.IsNil
+func IsNil(v reflect.Value) bool {
+	if IsNilable(v) && v.IsNil() {
+		return true
+	}
+	return false
+}
