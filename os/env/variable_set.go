@@ -56,6 +56,7 @@ func (set *VariableSet) StringVar(p *string, name string, def string, usage stri
 	if p == nil {
 		panic("`p` cannot be nil")
 	}
+	*p = def
 	sv := newStringValue(p)
 	set.value(sv, def, name, usage)
 }
@@ -74,6 +75,7 @@ func (set *VariableSet) IntVar(p *int, name string, def int, usage string) {
 	if p == nil {
 		panic("`p` cannot be nil")
 	}
+	*p = def
 	iv := newIntValue(p)
 	set.value(iv, def, name, usage)
 }
@@ -92,6 +94,7 @@ func (set *VariableSet) BoolVar(p *bool, name string, def bool, usage string) {
 	if p == nil {
 		panic("`p` cannot be nil")
 	}
+	*p = def
 	bv := newBoolValue(p)
 	set.value(bv, def, name, usage)
 }
