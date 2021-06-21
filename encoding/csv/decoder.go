@@ -161,7 +161,7 @@ func (d *Decoder) decodeValue(raw string, rv reflect.Value) error {
 
 	if rv.Kind() == reflect.Ptr && raw == d.Nil {
 		if !rv.IsNil() {
-			rv.Set(xreflect.ZeroValue(rv.Type()))
+			rv.Set(reflect.Zero(rv.Type()))
 		}
 		return nil
 	}
@@ -358,7 +358,7 @@ func (d *Decoder) allocElem(t reflect.Type) decodeElement {
 		}
 	}
 
-	rv := xreflect.ZeroValue(t)
+	rv := reflect.New(t).Elem()
 	return decodeElement{
 		elem:   rv,
 		access: rv,
