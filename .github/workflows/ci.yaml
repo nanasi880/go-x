@@ -17,9 +17,6 @@ jobs:
         with:
           stable: true
           go-version: '^1.16'
-      - name: "go version"
-        run: |
-          go version
       - name: "go test"
         run: |
           go test ./...
