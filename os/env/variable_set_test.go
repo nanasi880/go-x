@@ -12,6 +12,11 @@ func TestVariableSet(t *testing.T) {
 	_ = os.Setenv("ENV_TEST_STRING", "=this is string")
 	_ = os.Setenv("ENV_TEST_INT", "100")
 	_ = os.Setenv("ENV_TEST_BOOL", "1")
+	t.Cleanup(func() {
+		_ = os.Unsetenv("ENV_TEST_STRING")
+		_ = os.Unsetenv("ENV_TEST_INT")
+		_ = os.Unsetenv("ENV_TEST_BOOL")
+	})
 
 	set := env.NewVariableSet("test", env.ContinueOnError)
 
