@@ -13,7 +13,7 @@ jobs:
         uses: actions/setup-go@v2
         with:
           stable: true
-          go-version: '^1.15'
+          go-version: '^1.16'
       - name: "go test"
         run: |
           go test ./...
@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-go@v2
         with:
           stable: true
-          go-version: '^1.15'
+          go-version: '^1.16'
       - name: "go test"
         run: |
           go test ./...
@@ -41,7 +41,7 @@ jobs:
         uses: actions/setup-go@v2
         with:
           stable: true
-          go-version: '^1.15'
+          go-version: '^1.16'
       - name: "go test"
         run: |
           go test ./...
