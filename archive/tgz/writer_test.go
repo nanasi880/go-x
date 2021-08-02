@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"io"
+	"path/filepath"
 	"testing"
 
 	"go.nanasi880.dev/x/archive/tgz"
@@ -76,7 +77,7 @@ func TestEncoder(t *testing.T) {
 				}
 				found := false
 				for _, name := range suite.Names {
-					if header.Name == name {
+					if header.Name == filepath.FromSlash(name) {
 						found = true
 						break
 					}
