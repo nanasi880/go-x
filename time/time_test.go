@@ -6,8 +6,10 @@ import (
 	"sync"
 	"testing"
 	"time"
+	_ "time/tzdata"
 
-	time2 "go.nanasi880.dev/x/time"
+	xtesting "go.nanasi880.dev/x/internal/testing"
+	xtime "go.nanasi880.dev/x/time"
 )
 
 func TestSleep(t *testing.T) {
@@ -61,7 +63,7 @@ func TestSleep(t *testing.T) {
 				defer wg.Done()
 
 				begin := time.Now()
-				err := time2.Sleep(tc.c.ctx, tc.sleepD)
+				err := xtime.Sleep(tc.c.ctx, tc.sleepD)
 				end := time.Now()
 
 				if tc.cancelD > 0 && err == nil {
@@ -85,5 +87,23 @@ func TestSleep(t *testing.T) {
 
 			wg.Wait()
 		})
+	}
+}
+
+func TestFixedZone(t *testing.T) {
+	const (
+		minute = 60
+		hour   = minute * 60
+	)
+	zone1 := time.FixedZone("Asia/Tokyo", 9*hour)
+	zone2 := xtime.FixedZone("Asia/Tokyo", 9*time.Hour)
+
+	now := time.Now()
+	t1 := now.In(zone1)
+	t2 := now.In(zone2)
+
+	eq := t1.String() == t2.String()
+	if !eq {
+		xtesting.Fail(t, t1, t2)
 	}
 }

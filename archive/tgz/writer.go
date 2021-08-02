@@ -7,12 +7,13 @@ import (
 	"io"
 )
 
-// Writer is tar.gz encoder.
+// Writer is tar.gz archiver.
 type Writer struct {
 	w       io.Writer
 	entries []Entry
 }
 
+// NewWriter is create new archiver instance.
 func NewWriter(w io.Writer) *Writer {
 	return &Writer{
 		w: w,

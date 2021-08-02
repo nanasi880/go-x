@@ -476,6 +476,40 @@ func TestDecoder_DecodeTestSuite(t *testing.T) {
 			}
 		}
 	})
+	t.Run("Array2", func(t *testing.T) {
+		for suiteNo, suite := range msgPackTestSuite.Array {
+			for binaryNo, binary := range suite.MsgPack {
+				decoded := make([]int, 0, len(suite.Value))
+				err := msgpack.Unmarshal(binary, &decoded)
+				if err != nil {
+					t.Logf("suite:%d binary:%d err:%v  got:%v", suiteNo, binaryNo, err, decoded)
+					t.Fail()
+					continue
+				}
+				if !reflect.DeepEqual(decoded, suite.Value) {
+					t.Logf("suite:%d binary:%d got:%v", suiteNo, binaryNo, decoded)
+					t.Fail()
+				}
+			}
+		}
+	})
+	t.Run("Array3", func(t *testing.T) {
+		for suiteNo, suite := range msgPackTestSuite.Array {
+			for binaryNo, binary := range suite.MsgPack {
+				decoded := make([]int, len(suite.Value)/2, len(suite.Value))
+				err := msgpack.Unmarshal(binary, &decoded)
+				if err != nil {
+					t.Logf("suite:%d binary:%d err:%v  got:%v", suiteNo, binaryNo, err, decoded)
+					t.Fail()
+					continue
+				}
+				if !reflect.DeepEqual(decoded, suite.Value) {
+					t.Logf("suite:%d binary:%d got:%v", suiteNo, binaryNo, decoded)
+					t.Fail()
+				}
+			}
+		}
+	})
 	t.Run("Map", func(t *testing.T) {
 		for suiteNo, suite := range msgPackTestSuite.Map {
 			for binaryNo, binary := range suite.MsgPack {

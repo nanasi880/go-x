@@ -131,7 +131,7 @@ func (d *Decoder) Decode(v interface{}) (e error) {
 	}
 	rv := reflect.ValueOf(v)
 	if rv.Kind() != reflect.Ptr {
-		return fmt.Errorf("rv.Kind() != reflect.Ptr")
+		return fmt.Errorf("rv.kind() != reflect.Ptr")
 	}
 	return d.decodeValue(rv)
 }
