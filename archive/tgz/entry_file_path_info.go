@@ -20,10 +20,13 @@ type FilePathOption struct {
 	DontRecurse bool
 }
 
-func NewFilePath(p string, opt *FilePathOption) *FilePathInfo {
+var defaultFilePathOption FilePathOption
+
+// NewFilePathInfo is create FilePathInfo.
+func NewFilePathInfo(p string, opt *FilePathOption) *FilePathInfo {
 
 	if opt == nil {
-		opt = new(FilePathOption)
+		opt = &defaultFilePathOption
 	}
 
 	return &FilePathInfo{
