@@ -1,92 +1,73 @@
 package time_test
 
 import (
-	"context"
-	"fmt"
 	"sync"
 	"testing"
 	"time"
 	_ "time/tzdata"
 
+	"go.nanasi880.dev/x/context"
 	xtesting "go.nanasi880.dev/x/internal/testing"
 	xtime "go.nanasi880.dev/x/time"
 )
 
 func TestSleep(t *testing.T) {
-
-	type contexts struct {
-		ctx    context.Context
-		cancel context.CancelFunc
-	}
-
-	newContexts := func(ctx context.Context, cancelFunc context.CancelFunc) contexts {
-		return contexts{
-			ctx:    ctx,
-			cancel: cancelFunc,
-		}
-	}
-
-	ctx := context.Background()
 	testCases := []struct {
-		c       contexts
-		sleepD  time.Duration
-		cancelD time.Duration
+		ctx            context.CancelableContext
+		sleepDuration  time.Duration
+		cancelDuration time.Duration
 	}{
 		{
-			c:       newContexts(ctx, nil),
-			sleepD:  time.Second,
-			cancelD: 0,
+			ctx:            context.NewCancelableContext(xtesting.Context(t)),
+			sleepDuration:  time.Second,
+			cancelDuration: 0,
 		},
 		{
-			c:       newContexts(context.WithCancel(ctx)),
-			sleepD:  time.Second,
-			cancelD: 500 * time.Millisecond,
+			ctx:            context.NewCancelableContext(xtesting.Context(t)),
+			sleepDuration:  time.Second,
+			cancelDuration: 500 * time.Millisecond,
 		},
 	}
+	defer func() {
+		for _, suite := range testCases {
+			suite.ctx.Cancel()
+		}
+	}()
 
-	for i, tc := range testCases {
-		tc := tc
-		t.Run(fmt.Sprint(i), func(t *testing.T) {
-			wg := new(sync.WaitGroup)
+	for suiteNo, suite := range testCases {
+		suiteNo, suite := suiteNo, suite
 
-			if tc.cancelD > 0 {
-				wg.Add(1)
-				go func() {
-					defer wg.Done()
-					time.Sleep(tc.cancelD)
-					tc.c.cancel()
-				}()
-			}
-
+		wg := new(sync.WaitGroup)
+		go func() {
 			wg.Add(1)
-			go func() {
-				defer wg.Done()
+			if suite.cancelDuration > 0 {
+				time.Sleep(suite.cancelDuration)
+				suite.ctx.Cancel()
+			}
+		}()
 
-				begin := time.Now()
-				err := xtime.Sleep(tc.c.ctx, tc.sleepD)
-				end := time.Now()
+		wg.Wait()
 
-				if tc.cancelD > 0 && err == nil {
-					t.Errorf("")
-					return
-				}
-				if tc.cancelD == 0 && err != nil {
-					t.Errorf("%v", err)
-					return
-				}
+		begin := time.Now()
+		err := xtime.Sleep(suite.ctx, suite.sleepDuration)
+		duration := time.Since(begin)
 
-				actualD := tc.sleepD
-				if tc.cancelD > 0 {
-					actualD = tc.cancelD
-				}
+		if suite.cancelDuration > 0 && err == nil {
+			xtesting.Failf(t, "suiteNo:%d suite.cancelDuration > 0 && err == nil", suiteNo)
+			continue
+		}
+		if suite.cancelDuration == 0 && err != nil {
+			xtesting.Failf(t, "suiteNo:%d suite.cancelDuration == 0 && err != nil", suiteNo)
+			continue
+		}
 
-				if end.Sub(begin) < actualD {
-					t.Errorf("want: %v got: %v", actualD, end.Sub(begin))
-				}
-			}()
-
-			wg.Wait()
-		})
+		actualDuration := suite.sleepDuration
+		if suite.cancelDuration > 0 {
+			actualDuration = suite.cancelDuration
+		}
+		if duration < actualDuration {
+			xtesting.Failf(t, "suiteNo:%d duration:%v actual:%v", suiteNo, duration, actualDuration)
+		}
 	}
 }
 

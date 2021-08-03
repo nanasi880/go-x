@@ -32,3 +32,15 @@ func ExampleIsError() {
 	// true
 	// false
 }
+
+func ExampleCancelableContext() {
+	ctx := xcontext.NewCancelable()
+
+	fmt.Println(ctx.IsDone())
+	ctx.Cancel()
+	fmt.Println(ctx.IsDone())
+
+	// Output:
+	// false
+	// true
+}
