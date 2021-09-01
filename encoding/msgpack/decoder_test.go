@@ -2,6 +2,8 @@ package msgpack_test
 
 import (
 	"bytes"
+	"fmt"
+	"log"
 	"math"
 	"reflect"
 	"testing"
@@ -544,4 +546,86 @@ func TestDecoder_DecodeTestSuite(t *testing.T) {
 			}
 		}
 	})
+}
+
+func TestDecoder_CustomStructTag(t *testing.T) {
+
+	msgpackKey := struct {
+		Value1 string `msgpack:"value_1"`
+	}{
+		Value1: "Hello",
+	}
+
+	buf, err := msgpack.MarshalStringKey(msgpackKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	jsonKey := struct {
+		Value1 string `json:"value_1"`
+	}{}
+	dec := msgpack.NewDecoderBytes(buf).
+		SetStructKeyType(msgpack.StructKeyTypeString).
+		SetStructTagName("json")
+	err = dec.Decode(&jsonKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if jsonKey.Value1 != msgpackKey.Value1 {
+		t.Fatal(msgpackKey)
+	}
+}
+
+func ExampleDecoder_Decode_streaming() {
+
+	examples := make([]int, 0)
+	for i := 0; i < 10; i++ {
+		examples = append(examples, i)
+	}
+
+	data, err := msgpack.Marshal(examples)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ch := make(chan int)
+	go func() {
+		defer close(ch)
+
+		dec := msgpack.NewDecoderBytes(data)
+
+		format, err := dec.DecodeFormat()
+		if err != nil {
+			log.Fatal(err)
+		}
+		header, err := dec.DecodeArrayHeader(format)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for i := uint32(0); i < header.Length; i++ {
+			var value int
+			err = dec.Decode(&value)
+			if err != nil {
+				log.Fatal(err)
+			}
+			ch <- value
+		}
+	}()
+
+	for value := range ch {
+		fmt.Println(value)
+	}
+
+	// Output:
+	// 0
+	// 1
+	// 2
+	// 3
+	// 4
+	// 5
+	// 6
+	// 7
+	// 8
+	// 9
 }

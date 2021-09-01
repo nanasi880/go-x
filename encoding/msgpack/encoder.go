@@ -38,6 +38,7 @@ type Encoder struct {
 	work          []byte
 	pointers      pointerSlice
 	structKeyType StructKeyType
+	structTagName string
 }
 
 // NewEncoder is create encoder instance.
@@ -49,12 +50,23 @@ func NewEncoder(w io.Writer) *Encoder {
 		work:          make([]byte, 16),
 		pointers:      make([]uintptr, 0, 10),
 		structKeyType: StructKeyTypeInt,
+		structTagName: "msgpack",
 	}
 }
 
 // SetStructKeyType is set StructKeyType to Encoder.
 func (e *Encoder) SetStructKeyType(t StructKeyType) *Encoder {
 	e.structKeyType = t
+	return e
+}
+
+// SetStructTagName is set struct tag name to Encoder.
+// If tagName is empty, use `msgpack` tag.
+func (e *Encoder) SetStructTagName(tagName string) *Encoder {
+	if tagName == "" {
+		tagName = "msgpack"
+	}
+	e.structTagName = tagName
 	return e
 }
 
@@ -67,6 +79,7 @@ func (e *Encoder) Reset(w io.Writer) {
 		work:          e.work,
 		pointers:      e.pointers,
 		structKeyType: StructKeyTypeInt,
+		structTagName: "msgpack",
 	}
 }
 
