@@ -38,8 +38,9 @@ func TestSleep(t *testing.T) {
 		suiteNo, suite := suiteNo, suite
 
 		wg := new(sync.WaitGroup)
+		wg.Add(1)
 		go func() {
-			wg.Add(1)
+			wg.Done()
 			if suite.cancelDuration > 0 {
 				time.Sleep(suite.cancelDuration)
 				suite.ctx.Cancel()

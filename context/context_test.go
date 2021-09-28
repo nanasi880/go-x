@@ -2,7 +2,9 @@ package context_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"testing"
 
 	xcontext "go.nanasi880.dev/x/context"
 )
@@ -43,4 +45,35 @@ func ExampleCancelableContext() {
 	// Output:
 	// false
 	// true
+}
+
+func TestIsDone(t *testing.T) {
+	ctx, cancel := xcontext.NewCancel()
+	defer cancel()
+
+	done := xcontext.IsDone(ctx)
+	if done {
+		t.Fatal()
+	}
+
+	cancel()
+	done = xcontext.IsDone(ctx)
+	if !done {
+		t.Fatal()
+	}
+}
+
+func TestIsError(t *testing.T) {
+	if xcontext.IsError(nil) {
+		t.Fatal()
+	}
+	if xcontext.IsError(errors.New("")) {
+		t.Fatal()
+	}
+	if !xcontext.IsError(context.DeadlineExceeded) {
+		t.Fatal()
+	}
+	if !xcontext.IsError(context.Canceled) {
+		t.Fatal()
+	}
 }
