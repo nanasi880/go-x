@@ -332,9 +332,12 @@ func (e *Encoder) encodeStruct(rv reflect.Value) error {
 }
 
 func (e *Encoder) encodeStructToArray(rv reflect.Value) error {
-	indexes := cache.GetInt(rv.Type())
+	indexes, err := cache.GetInt(rv.Type(), e.structTagName)
+	if err != nil {
+		return err
+	}
 
-	err := e.encodeArrayHeaderInt(len(indexes))
+	err = e.encodeArrayHeaderInt(len(indexes))
 	if err != nil {
 		return err
 	}
@@ -357,9 +360,12 @@ func (e *Encoder) encodeStructToArray(rv reflect.Value) error {
 }
 
 func (e *Encoder) encodeStructToMap(rv reflect.Value) error {
-	indexes := cache.GetStringOrdered(rv.Type())
+	indexes, err := cache.GetStringOrdered(rv.Type(), e.structTagName)
+	if err != nil {
+		return err
+	}
 
-	err := e.encodeMapHeaderInt(len(indexes))
+	err = e.encodeMapHeaderInt(len(indexes))
 	if err != nil {
 		return err
 	}

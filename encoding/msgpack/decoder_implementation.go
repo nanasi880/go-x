@@ -445,7 +445,10 @@ func (d *Decoder) decodeArrayToStruct(rv reflect.Value, format FormatName, b byt
 		rv = rv.Elem()
 	}
 
-	structIndexes := cache.GetInt(rv.Type())
+	structIndexes, err := cache.GetInt(rv.Type(), d.structTagName)
+	if err != nil {
+		return fmt.Errorf("%s cannot decode to %s: %w", format, rv.Type().String(), err)
+	}
 
 	// Arrayの場合はNilでパディングしてあるはず かつ
 	// ずれている場合に補正が効かないのでエラーとする
@@ -599,7 +602,10 @@ func (d *Decoder) decodeMapToStruct(rv reflect.Value, format FormatName, b byte)
 		rv = rv.Elem()
 	}
 
-	structIndexes := cache.GetString(rv.Type())
+	structIndexes, err := cache.GetString(rv.Type(), d.structTagName)
+	if err != nil {
+		return fmt.Errorf("%s cannot decode to %s: %w", format, rv.Type().String(), err)
+	}
 
 	for i := 0; i < length; i++ {
 		index, ok, err := d.lookupStringIndex(structIndexes)

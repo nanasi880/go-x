@@ -307,3 +307,33 @@ func TestEncoder_EncodeTestSuite(t *testing.T) {
 		}
 	})
 }
+
+func TestEncoder_CustomStructTag(t *testing.T) {
+
+	jsonKey := struct {
+		Value1 string `json:"value_1"`
+	}{
+		Value1: "Hello",
+	}
+
+	buf := new(bytes.Buffer)
+	enc := msgpack.NewEncoder(buf).
+		SetStructKeyType(msgpack.StructKeyTypeString).
+		SetStructTagName("json")
+
+	err := enc.Encode(jsonKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	msgpackKey := struct {
+		Value1 string `msgpack:"value_1"`
+	}{}
+	err = msgpack.UnmarshalStringKey(buf.Bytes(), &msgpackKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if jsonKey.Value1 != msgpackKey.Value1 {
+		t.Fatal(msgpackKey)
+	}
+}

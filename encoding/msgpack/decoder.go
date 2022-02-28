@@ -34,6 +34,7 @@ type Decoder struct {
 	reader               *xbytes.BinaryReader
 	work                 []byte
 	structKeyType        StructKeyType
+	structTagName        string
 	arrayLengthTolerance ArrayLengthTolerance
 	timeZone             *time.Location
 }
@@ -45,6 +46,7 @@ func NewDecoder(r io.Reader) *Decoder {
 		reader:               xbytes.NewBinaryReader(r),
 		work:                 make([]byte, readBlockSize),
 		structKeyType:        StructKeyTypeInt,
+		structTagName:        "msgpack",
 		arrayLengthTolerance: ArrayLengthToleranceLessThanOrEqual,
 		timeZone:             nil,
 	}
@@ -60,6 +62,7 @@ func NewDecoderBytes(in []byte) *Decoder {
 		reader:               nil,
 		work:                 make([]byte, readBlockSize),
 		structKeyType:        StructKeyTypeInt,
+		structTagName:        "msgpack",
 		arrayLengthTolerance: ArrayLengthToleranceLessThanOrEqual,
 		timeZone:             nil,
 	}
@@ -72,6 +75,7 @@ func (d *Decoder) Reset(r io.Reader) {
 		reader:               d.reader,
 		work:                 d.work,
 		structKeyType:        StructKeyTypeInt,
+		structTagName:        "msgpack",
 		arrayLengthTolerance: ArrayLengthToleranceLessThanOrEqual,
 		timeZone:             nil,
 	}
@@ -91,6 +95,7 @@ func (d *Decoder) ResetBytes(in []byte) {
 		reader:               d.reader,
 		work:                 d.work,
 		structKeyType:        StructKeyTypeInt,
+		structTagName:        "msgpack",
 		arrayLengthTolerance: ArrayLengthToleranceLessThanOrEqual,
 		timeZone:             nil,
 	}
@@ -115,6 +120,16 @@ func (d *Decoder) SetArrayLengthTolerance(tolerance ArrayLengthTolerance) *Decod
 // The decoder will set this time zone to the time when decoding. If loc is nil, use the UTC time.
 func (d *Decoder) SetTimeZone(loc *time.Location) *Decoder {
 	d.timeZone = loc
+	return d
+}
+
+// SetStructTagName is set struct tag name to Decoder.
+// If tagName is empty, use `msgpack` tag.
+func (d *Decoder) SetStructTagName(tagName string) *Decoder {
+	if tagName == "" {
+		tagName = "msgpack"
+	}
+	d.structTagName = tagName
 	return d
 }
 
