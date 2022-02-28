@@ -9,12 +9,12 @@ import (
 	"unsafe"
 
 	cache "go.nanasi880.dev/x/encoding/msgpack/internal/index"
-	xreflect "go.nanasi880.dev/x/reflect"
-	xunsafe "go.nanasi880.dev/x/unsafe"
+	"go.nanasi880.dev/x/reflect/reflectutil"
+	"go.nanasi880.dev/x/unsafe/unsafeutil"
 )
 
 func (e *Encoder) encodeValue(rv reflect.Value) error {
-	if xreflect.IsNil(rv) {
+	if reflectutil.IsNil(rv) {
 		return e.EncodeNil()
 	}
 	if rv.Type().Implements(marshalerType) {
@@ -291,7 +291,7 @@ func (e *Encoder) encodeString(v string) error {
 	if err != nil {
 		return err
 	}
-	bin := xunsafe.StringToBytes(v)
+	bin := unsafeutil.StringToBytes(v)
 	return e.write(bin)
 }
 

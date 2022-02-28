@@ -8,8 +8,8 @@ import (
 	"reflect"
 	"time"
 
-	xbytes "go.nanasi880.dev/x/bytes"
-	xunsafe "go.nanasi880.dev/x/unsafe"
+	"go.nanasi880.dev/x/bytes/byteutil"
+	"go.nanasi880.dev/x/unsafe/unsafeutil"
 )
 
 // Unmarshaler is the interface implemented by types that
@@ -31,7 +31,7 @@ func UnmarshalStringKey(b []byte, v interface{}) error {
 // Decoder is message pack decoder.
 type Decoder struct {
 	data                 []byte
-	reader               *xbytes.BinaryReader
+	reader               *byteutil.BinaryReader
 	work                 []byte
 	structKeyType        StructKeyType
 	structTagName        string
@@ -43,7 +43,7 @@ type Decoder struct {
 func NewDecoder(r io.Reader) *Decoder {
 	return &Decoder{
 		data:                 nil,
-		reader:               xbytes.NewBinaryReader(r),
+		reader:               byteutil.NewBinaryReader(r),
 		work:                 make([]byte, readBlockSize),
 		structKeyType:        StructKeyTypeInt,
 		structTagName:        "msgpack",
@@ -80,7 +80,7 @@ func (d *Decoder) Reset(r io.Reader) {
 		timeZone:             nil,
 	}
 	if d.reader == nil {
-		d.reader = xbytes.NewBinaryReader(r)
+		d.reader = byteutil.NewBinaryReader(r)
 	}
 	d.reader.Reset(r)
 }
@@ -233,7 +233,7 @@ func (d *Decoder) DecodeString(format Format) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return xunsafe.BytesToString(tmp), nil
+	return unsafeutil.BytesToString(tmp), nil
 }
 
 // DecodeTime is decode time from message pack.

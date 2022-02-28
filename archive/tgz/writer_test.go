@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"go.nanasi880.dev/x/archive/tgz"
-	xtesting "go.nanasi880.dev/x/internal/testing"
+	"go.nanasi880.dev/x/internal/testing/testutil"
 )
 
 func TestEncoder(t *testing.T) {
@@ -54,16 +54,16 @@ func TestEncoder(t *testing.T) {
 			w.Add(suite.Entries...)
 			err := w.Write()
 			if err != nil {
-				xtesting.Failf(t, "suiteNo:%d err:%v", suiteNo, err)
+				testutil.Failf(t, "suiteNo:%d err:%v", suiteNo, err)
 				return
 			}
 
 			gz, err := gzip.NewReader(buf)
 			if err != nil {
-				xtesting.Failf(t, "suiteNo:%d err:%v", suiteNo, err)
+				testutil.Failf(t, "suiteNo:%d err:%v", suiteNo, err)
 				return
 			}
-			defer xtesting.Close(t, gz)
+			defer testutil.Close(t, gz)
 			r := tar.NewReader(gz)
 
 			for {
@@ -72,7 +72,7 @@ func TestEncoder(t *testing.T) {
 					break
 				}
 				if err != nil {
-					xtesting.Failf(t, "suiteNo:%d err:%v", suiteNo, err)
+					testutil.Failf(t, "suiteNo:%d err:%v", suiteNo, err)
 					return
 				}
 				found := false
@@ -83,7 +83,7 @@ func TestEncoder(t *testing.T) {
 					}
 				}
 				if !found {
-					xtesting.Failf(t, "suiteNo:%d err:%v", suiteNo, err)
+					testutil.Failf(t, "suiteNo:%d err:%v", suiteNo, err)
 				}
 			}
 		}()
