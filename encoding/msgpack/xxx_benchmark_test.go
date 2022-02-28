@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	xgob "go.nanasi880.dev/x/encoding/gob"
+	"go.nanasi880.dev/x/encoding/gobutil"
 	"go.nanasi880.dev/x/encoding/msgpack"
 )
 
@@ -52,7 +52,7 @@ func Benchmark_VS_Standard(b *testing.B) {
 	if err != nil {
 		b.Fatal(err)
 	}
-	gobData, err := xgob.Marshal(benchmarkData)
+	gobData, err := gobutil.Marshal(benchmarkData)
 	if err != nil {
 		b.Fatal(err)
 	}

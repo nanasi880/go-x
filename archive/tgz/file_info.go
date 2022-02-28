@@ -6,7 +6,7 @@ import (
 	"os/user"
 	"strconv"
 
-	xos "go.nanasi880.dev/x/os"
+	"go.nanasi880.dev/x/os/osutil"
 )
 
 type fileInfo struct {
@@ -33,7 +33,7 @@ func (f *fileInfo) tarHeader(path string) *tar.Header {
 	header.Size = info.Size()
 	header.Mode = int64(info.Mode())
 
-	sysInfo := xos.FileInfo(info)
+	sysInfo := osutil.FileInfo(info)
 
 	header.Uid = sysInfo.UID()
 	header.Gid = sysInfo.GID()

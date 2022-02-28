@@ -9,9 +9,9 @@ import (
 	"time"
 
 	cache "go.nanasi880.dev/x/encoding/msgpack/internal/index"
-	xreflect "go.nanasi880.dev/x/reflect"
-	"go.nanasi880.dev/x/runtime"
-	xunsafe "go.nanasi880.dev/x/unsafe"
+	"go.nanasi880.dev/x/reflect/reflectutil"
+	"go.nanasi880.dev/x/runtime/runtimeutil"
+	"go.nanasi880.dev/x/unsafe/unsafeutil"
 )
 
 const (
@@ -56,8 +56,8 @@ func (d *Decoder) decodeValue(rv reflect.Value) error {
 
 func (d *Decoder) decodeUnmarshaler(rv reflect.Value) error {
 	for {
-		if xreflect.IsNilable(rv) && rv.IsNil() {
-			xreflect.AllocateTo(rv)
+		if reflectutil.IsNilable(rv) && rv.IsNil() {
+			reflectutil.AllocateTo(rv)
 		}
 		if rv.Type().Implements(unmarshalerType) {
 			return rv.Interface().(Unmarshaler).UnmarshalMsgPack(d)
@@ -201,7 +201,7 @@ func (d *Decoder) decodeStringHeader(format FormatName, b byte) (int, error) {
 		return 0, fmt.Errorf("%s is not a string type", format.String())
 	}
 
-	if runtime.MaxInt < uint64(length) {
+	if runtimeutil.MaxInt < uint64(length) {
 		return 0, fmt.Errorf("the string is too large (string length exceeds the maximum value of int)")
 	}
 
@@ -219,7 +219,7 @@ func (d *Decoder) decodeNil(rv reflect.Value) error {
 	}
 
 	// already nil
-	if xreflect.IsNilable(rv) && rv.IsNil() {
+	if reflectutil.IsNilable(rv) && rv.IsNil() {
 		return nil
 	}
 
@@ -285,7 +285,7 @@ func (d *Decoder) decodeBinHeader(format FormatName) (int, error) {
 		return 0, fmt.Errorf("%s is not a bin type", format.String())
 	}
 
-	if runtime.MaxInt < uint64(length) {
+	if runtimeutil.MaxInt < uint64(length) {
 		return 0, fmt.Errorf("the bin is too large (bin length exceeds the maximum value of int)")
 	}
 
@@ -361,7 +361,7 @@ func (d *Decoder) decodeExtHeaderAsInt(format FormatName) (byte, int, error) {
 	if err != nil {
 		return 0, 0, err
 	}
-	if runtime.MaxInt < uint64(length) {
+	if runtimeutil.MaxInt < uint64(length) {
 		return 0, 0, fmt.Errorf("the ext data is too long (ext data length exceeds the maximum value of int)")
 	}
 	return typeCode, int(length), nil
@@ -440,7 +440,7 @@ func (d *Decoder) decodeArrayToStruct(rv reflect.Value, format FormatName, b byt
 	// allocate
 	for rv.Kind() == reflect.Ptr {
 		if rv.IsNil() {
-			xreflect.AllocateTo(rv)
+			reflectutil.AllocateTo(rv)
 		}
 		rv = rv.Elem()
 	}
@@ -488,8 +488,8 @@ func (d *Decoder) decodeArrayToArray(rv reflect.Value, format FormatName, b byte
 
 	// allocate
 	for rv.Kind() == reflect.Ptr {
-		if xreflect.IsNilable(rv) && rv.IsNil() {
-			xreflect.AllocateTo(rv)
+		if reflectutil.IsNilable(rv) && rv.IsNil() {
+			reflectutil.AllocateTo(rv)
 		}
 		rv = rv.Elem()
 	}
@@ -511,7 +511,7 @@ func (d *Decoder) decodeArrayToArray(rv reflect.Value, format FormatName, b byte
 			}
 		}
 	}
-	if xreflect.IsNilable(rv) && rv.IsNil() {
+	if reflectutil.IsNilable(rv) && rv.IsNil() {
 		rv.Set(reflect.MakeSlice(rv.Type(), 0, 0))
 	}
 
@@ -575,7 +575,7 @@ func (d *Decoder) decodeArrayHeaderAsInt(format FormatName, b byte) (int, error)
 	if err != nil {
 		return 0, err
 	}
-	if runtime.MaxInt < uint64(length) {
+	if runtimeutil.MaxInt < uint64(length) {
 		return 0, fmt.Errorf("the array is too long (array length exceeds the maximum value of int)")
 	}
 	return int(length), nil
@@ -597,7 +597,7 @@ func (d *Decoder) decodeMapToStruct(rv reflect.Value, format FormatName, b byte)
 	// allocate
 	for rv.Kind() == reflect.Ptr {
 		if rv.IsNil() {
-			xreflect.AllocateTo(rv)
+			reflectutil.AllocateTo(rv)
 		}
 		rv = rv.Elem()
 	}
@@ -642,7 +642,7 @@ func (d *Decoder) decodeMapToMap(rv reflect.Value, format FormatName, b byte) er
 	// allocate
 	for rv.Kind() == reflect.Ptr {
 		if rv.IsNil() {
-			xreflect.AllocateTo(rv)
+			reflectutil.AllocateTo(rv)
 		}
 		rv = rv.Elem()
 	}
@@ -708,7 +708,7 @@ func (d *Decoder) decodeMapHeaderAsInt(format FormatName, b byte) (int, error) {
 		return 0, err
 	}
 
-	if runtime.MaxInt < uint64(length) {
+	if runtimeutil.MaxInt < uint64(length) {
 		return 0, fmt.Errorf("the map is too large (map length exceeds the maximum value of int)")
 	}
 
@@ -741,10 +741,10 @@ func (d *Decoder) validateInt(rv reflect.Value) bool {
 	for typ.Kind() == reflect.Ptr {
 		typ = typ.Elem()
 	}
-	if xreflect.IsInt(typ.Kind()) {
+	if reflectutil.IsInt(typ.Kind()) {
 		return true
 	}
-	if xreflect.IsFloat(typ.Kind()) {
+	if reflectutil.IsFloat(typ.Kind()) {
 		return true
 	}
 	if typ.Kind() == reflect.Interface {
@@ -758,10 +758,10 @@ func (d *Decoder) validateFloat(rv reflect.Value) bool {
 	for typ.Kind() == reflect.Ptr {
 		typ = typ.Elem()
 	}
-	if xreflect.IsFloat(typ.Kind()) {
+	if reflectutil.IsFloat(typ.Kind()) {
 		return true
 	}
-	if xreflect.IsInt(typ.Kind()) {
+	if reflectutil.IsInt(typ.Kind()) {
 		return true
 	}
 	if typ.Kind() == reflect.Interface {
@@ -858,19 +858,19 @@ func (d *Decoder) validateMap(rv reflect.Value) bool {
 func (d *Decoder) setInt(rv reflect.Value, v int64) error {
 	for rv.Kind() == reflect.Ptr {
 		if rv.IsNil() {
-			xreflect.AllocateTo(rv)
+			reflectutil.AllocateTo(rv)
 		}
 		rv = rv.Elem()
 	}
-	if xreflect.IsSignedInt(rv.Kind()) {
+	if reflectutil.IsSignedInt(rv.Kind()) {
 		rv.SetInt(v)
 		return nil
 	}
-	if xreflect.IsUnsignedInt(rv.Kind()) {
+	if reflectutil.IsUnsignedInt(rv.Kind()) {
 		rv.SetUint(uint64(v))
 		return nil
 	}
-	if xreflect.IsFloat(rv.Kind()) {
+	if reflectutil.IsFloat(rv.Kind()) {
 		rv.SetFloat(float64(v))
 		return nil
 	}
@@ -884,19 +884,19 @@ func (d *Decoder) setInt(rv reflect.Value, v int64) error {
 func (d *Decoder) setUint(rv reflect.Value, v uint64) error {
 	for rv.Kind() == reflect.Ptr {
 		if rv.IsNil() {
-			xreflect.AllocateTo(rv)
+			reflectutil.AllocateTo(rv)
 		}
 		rv = rv.Elem()
 	}
-	if xreflect.IsUnsignedInt(rv.Kind()) {
+	if reflectutil.IsUnsignedInt(rv.Kind()) {
 		rv.SetUint(v)
 		return nil
 	}
-	if xreflect.IsSignedInt(rv.Kind()) {
+	if reflectutil.IsSignedInt(rv.Kind()) {
 		rv.SetInt(int64(v))
 		return nil
 	}
-	if xreflect.IsFloat(rv.Kind()) {
+	if reflectutil.IsFloat(rv.Kind()) {
 		rv.SetFloat(float64(v))
 		return nil
 	}
@@ -910,16 +910,16 @@ func (d *Decoder) setUint(rv reflect.Value, v uint64) error {
 func (d *Decoder) setFloat32(rv reflect.Value, v float32) error {
 	for rv.Kind() == reflect.Ptr {
 		if rv.IsNil() {
-			xreflect.AllocateTo(rv)
+			reflectutil.AllocateTo(rv)
 		}
 		rv = rv.Elem()
 	}
-	if xreflect.IsFloat(rv.Kind()) {
+	if reflectutil.IsFloat(rv.Kind()) {
 		rv.SetFloat(float64(v))
 		return nil
 	}
-	if xreflect.IsInt(rv.Kind()) {
-		if xreflect.IsSignedInt(rv.Kind()) {
+	if reflectutil.IsInt(rv.Kind()) {
+		if reflectutil.IsSignedInt(rv.Kind()) {
 			rv.SetInt(int64(v))
 		} else {
 			rv.SetUint(uint64(v))
@@ -936,16 +936,16 @@ func (d *Decoder) setFloat32(rv reflect.Value, v float32) error {
 func (d *Decoder) setFloat64(rv reflect.Value, v float64) error {
 	for rv.Kind() == reflect.Ptr {
 		if rv.IsNil() {
-			xreflect.AllocateTo(rv)
+			reflectutil.AllocateTo(rv)
 		}
 		rv = rv.Elem()
 	}
-	if xreflect.IsFloat(rv.Kind()) {
+	if reflectutil.IsFloat(rv.Kind()) {
 		rv.SetFloat(v)
 		return nil
 	}
-	if xreflect.IsInt(rv.Kind()) {
-		if xreflect.IsSignedInt(rv.Kind()) {
+	if reflectutil.IsInt(rv.Kind()) {
+		if reflectutil.IsSignedInt(rv.Kind()) {
 			rv.SetInt(int64(v))
 		} else {
 			rv.SetUint(uint64(v))
@@ -962,12 +962,12 @@ func (d *Decoder) setFloat64(rv reflect.Value, v float64) error {
 func (d *Decoder) setString(rv reflect.Value, v []byte) error {
 	for rv.Kind() == reflect.Ptr {
 		if rv.IsNil() {
-			xreflect.AllocateTo(rv)
+			reflectutil.AllocateTo(rv)
 		}
 		rv = rv.Elem()
 	}
 	if rv.Kind() == reflect.String {
-		rv.SetString(xunsafe.BytesToString(v))
+		rv.SetString(unsafeutil.BytesToString(v))
 		return nil
 	}
 	if rv.Type() == byteSliceType {
@@ -978,7 +978,7 @@ func (d *Decoder) setString(rv reflect.Value, v []byte) error {
 		return d.copyBinToArray(rv, v)
 	}
 	if rv.Type() == interfaceType {
-		rv.Set(reflect.ValueOf(xunsafe.BytesToString(v)))
+		rv.Set(reflect.ValueOf(unsafeutil.BytesToString(v)))
 		return nil
 	}
 	return fmt.Errorf("internal: unsupported kind: %s", rv.Kind())
@@ -987,7 +987,7 @@ func (d *Decoder) setString(rv reflect.Value, v []byte) error {
 func (d *Decoder) setBool(rv reflect.Value, v bool) error {
 	for rv.Kind() == reflect.Ptr {
 		if rv.IsNil() {
-			xreflect.AllocateTo(rv)
+			reflectutil.AllocateTo(rv)
 		}
 		rv = rv.Elem()
 	}
@@ -1005,7 +1005,7 @@ func (d *Decoder) setBool(rv reflect.Value, v bool) error {
 func (d *Decoder) setBin(rv reflect.Value, v []byte) error {
 	for rv.Kind() == reflect.Ptr {
 		if rv.IsNil() {
-			xreflect.AllocateTo(rv)
+			reflectutil.AllocateTo(rv)
 		}
 		rv = rv.Elem()
 	}
@@ -1014,7 +1014,7 @@ func (d *Decoder) setBin(rv reflect.Value, v []byte) error {
 		return nil
 	}
 	if rv.Kind() == reflect.String {
-		rv.SetString(xunsafe.BytesToString(v))
+		rv.SetString(unsafeutil.BytesToString(v))
 		return nil
 	}
 	if rv.Kind() == reflect.Array {
@@ -1030,7 +1030,7 @@ func (d *Decoder) setBin(rv reflect.Value, v []byte) error {
 func (d *Decoder) setTime(rv reflect.Value, v time.Time) error {
 	for rv.Kind() == reflect.Ptr {
 		if rv.IsNil() {
-			xreflect.AllocateTo(rv)
+			reflectutil.AllocateTo(rv)
 		}
 		rv = rv.Elem()
 	}

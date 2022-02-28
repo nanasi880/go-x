@@ -2,6 +2,7 @@ package msgpack_test
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"log"
 	"math"
@@ -9,12 +10,12 @@ import (
 	"testing"
 	"time"
 
-	"go.nanasi880.dev/x/encoding/base64"
+	"go.nanasi880.dev/x/encoding/base64util"
 	"go.nanasi880.dev/x/encoding/msgpack"
 )
 
 func TestDecoder_DecodeFromMessagePackForCSharpBinary(t *testing.T) {
-	binary, err := base64.DecodeFromFile(base64.StdEncoding, "testdata/test-data-base64.txt")
+	binary, err := base64util.DecodeFromFile(base64.StdEncoding, "testdata/test-data-base64.txt")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"go.nanasi880.dev/x/io"
+	"go.nanasi880.dev/x/io/ioutil"
 )
 
 // FilePathInfo is file path of archive entry.
@@ -76,7 +76,7 @@ func (p *FilePathInfo) processSingleFile(w *tar.Writer, path string, info os.Fil
 	}
 	defer f.Close()
 
-	return io.Copy(w, f)
+	return ioutil.Copy(w, f)
 }
 
 func (p *FilePathInfo) validateFile(info os.FileInfo) error {
